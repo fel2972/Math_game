@@ -1,0 +1,806 @@
+        <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 เกมคิดเลขสร้างสูตร</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .problem, .timer, .score {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(79, 172, 254, 0.3);
+        }
+
+        .expression-container {
+            background: #f7fafc;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            position: relative;
+            overflow-wrap: break-word;
+        }
+
+        .expression-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.8rem;
+            color: #2d3748;
+            min-height: 40px;
+            line-height: 40px;
+            word-break: break-all;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 30px;
+            background: #e53e3e;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cursor-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #81ecec 0%, #74b9ff 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(116, 185, 255, 0.3);
+        }
+
+        .cursor-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(116, 185, 255, 0.4);
+        }
+
+        .numbers-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .available-numbers {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .number-buttons, .operator-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .number-btn, .operator-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+
+        .number-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3748;
+            box-shadow: 0 6px 12px rgba(168, 237, 234, 0.3);
+        }
+
+        .number-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(168, 237, 234, 0.4);
+        }
+
+        .number-btn:disabled {
+            background: #cbd5e0;
+            color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .operator-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #2d3748;
+            box-shadow: 0 6px 12px rgba(252, 182, 159, 0.3);
+        }
+
+        .operator-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(252, 182, 159, 0.4);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            box-shadow: 0 6px 12px rgba(132, 250, 176, 0.3);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+            box-shadow: 0 6px 12px rgba(255, 167, 38, 0.3);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+            box-shadow: 0 6px 12px rgba(239, 83, 80, 0.3);
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%);
+            box-shadow: 0 6px 12px rgba(171, 71, 188, 0.3);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
+            box-shadow: 0 6px 12px rgba(120, 144, 156, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+            color: #c62828;
+        }
+
+        .result.info {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            color: #0277bd;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .game-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .number-buttons, .operator-buttons, .control-buttons {
+                gap: 10px;
+            }
+
+            .number-btn, .operator-btn {
+                min-width: 50px;
+                padding: 12px 16px;
+                font-size: 1.1rem;
+            }
+
+            .control-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        /* เป้าหมาย: ป้ายใหญ่ เด่น คลิกขยายได้ */
+        .target-badge{
+            padding: 6px 16px;
+            display:inline-block;
+            background: linear-gradient(135deg,#ff9a9e 0%, #fad0c4 100%);
+            color:#2d3748;
+            font-weight:800;
+            font-size: 2.4rem;     /* ← ใหญ่ขึ้น */
+            line-height: 1;
+            box-shadow: 0 8px 16px rgba(250, 208, 196, 0.5);
+            vertical-align: middle;
+            transform-origin: center;
+            border-radius: 14px;
+        }
+
+        .problem .nums{
+            font-weight:700;
+            opacity:.95;
+        }
+
+        .problem .label{
+            margin-right: 6px;
+        }
+
+        .target-badge.big {       
+            font-size: 3.6rem;
+            transform: scale(1.05);
+        }
+
+        @media (max-width:768px){
+            .target-badge{ font-size: 2.8rem; }
+            .target-badge.big{ font-size: 4rem; }
+        }
+            /* จัด layout ของกล่องโจทย์ให้วางป้าย Target ข้างข้อความ */
+.problem{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* ป้ายเป้าหมาย: ใหญ่, ชัด, มีเส้นขอบและเงาเรือง */
+.target-badge{
+  padding: 8px 18px;
+  display:inline-block;
+  background: linear-gradient(135deg,#ffd86f 0%, #fc6262 100%);
+  color:#1f2937;               /* เข้มอ่านง่าย */
+  font-weight:900;
+  font-size: 2.8rem;           /* ใหญ่ขึ้น */
+  line-height: 1;
+  border-radius: 14px;
+  border: 3px solid rgba(255,255,255,.8);
+  text-shadow: 0 2px 0 rgba(255,255,255,.4);
+  box-shadow: 0 10px 22px rgba(252, 98, 98, .45), 0 0 0 6px rgba(255,255,255,.25) inset;
+  cursor: zoom-in;
+  user-select: none;
+}
+
+/* โหมดขยายเมื่อคลิก */
+.target-badge.big{
+  transform: scale(1.12);
+  font-size: 3.6rem;
+  box-shadow: 0 14px 28px rgba(252,98,98,.55), 0 0 0 8px rgba(255,255,255,.32) inset;
+}
+
+/* เด้งเบาๆ ตอนสุ่มโจทย์ใหม่ */
+@keyframes pop {
+  0%   { transform: scale(.8); opacity:.7;}
+  60%  { transform: scale(1.18); opacity:1;}
+  100% { transform: scale(1); }
+}
+.target-badge.flash{ animation: pop .6s ease-out; }
+
+/* หายใจเบาๆ ตลอดเวลาให้เตะตา */
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 10px 22px rgba(252,98,98,.45), 0 0 0 6px rgba(255,255,255,.25) inset; }
+  50%     { box-shadow: 0 14px 28px rgba(252,98,98,.60), 0 0 0 8px rgba(255,255,255,.32) inset; }
+}
+.target-badge{ animation: pulseGlow 2.4s ease-in-out infinite; }
+
+@media (max-width:768px){
+  .target-badge{ font-size: 2.6rem; }
+  .target-badge.big{ font-size: 3.4rem; }
+}
+
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">🧠 เกมคิดเลขสร้างสูตร</h1>
+        
+        <div class="game-info">
+            <div class="problem" id="problemDisplay">กำลังโหลด...</div>
+            <div class="timer" id="timerDisplay">⏳ เวลา: 0</div>
+            <div class="score" id="scoreDisplay">คะแนน: 0</div>
+        </div>
+
+        <div class="expression-container">
+            <div class="expression-display" id="expressionDisplay"></div>
+        </div>
+
+        <div class="cursor-controls">
+            <span style="font-size: 0.9rem; color: #666;">เลื่อน Cursor:</span>
+            <button class="cursor-btn" onclick="cursorToStart()">Home</button>
+            <button class="cursor-btn" onclick="moveCursorLeft()">◄</button>
+            <button class="cursor-btn" onclick="moveCursorRight()">►</button>
+            <button class="cursor-btn" onclick="cursorToEnd()">End</button>
+        </div>
+
+        <div class="numbers-section">
+            <div class="section-title">เลขที่ใช้ได้</div>
+            <div class="available-numbers" id="availableNumbers"></div>
+            <div class="number-buttons" id="numberButtons"></div>
+        </div>
+
+        <div class="section-title">เครื่องหมาย</div>
+        <div class="operator-buttons">
+            <button class="operator-btn" onclick="addToExpression('+')">+</button>
+            <button class="operator-btn" onclick="addToExpression('-')">-</button>
+            <button class="operator-btn" onclick="addToExpression('*')">×</button>
+            <button class="operator-btn" onclick="addToExpression('/')">/</button>
+            <button class="operator-btn" onclick="addToExpression('(')">(</button>
+            <button class="operator-btn" onclick="addToExpression(')')">)</button>
+        </div>
+
+        <div class="control-buttons">
+            <button class="control-btn check-btn" onclick="checkAnswer()">ตรวจคำตอบ (Enter)</button>
+            <button class="control-btn delete-btn" onclick="deleteAtCursor()">ลบ (Backspace)</button>
+            <button class="control-btn clear-btn" onclick="clearExpression()">ล้าง (Esc)</button>
+        </div>
+
+        <div class="control-buttons">
+            <button class="control-btn hint-btn" onclick="revealSolution()">ดูเฉลย (-5 คะแนน)</button>
+            <button class="control-btn reset-btn" onclick="resetGame()">รีเซ็ตเกม</button>
+        </div>
+
+        <div class="result" id="resultDisplay"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            expression: '',
+            cursorPos: 0,
+            numbers: [],
+            target: 0,
+            numberCounts: {},
+            score: 0,
+            solved: false,
+            solution: '',
+            startTime: 0
+        };
+
+        function init() {
+            document.addEventListener('keydown', handleKeyPress);
+            startGame();
+        }
+
+        function startGame() {
+            gameState.expression = '';
+            gameState.cursorPos = 0;
+            gameState.solved = false;
+            
+            // Generate random problem
+            do {
+                gameState.numbers = generateRandomNumbers(4);
+                gameState.target = Math.floor(Math.random() * 600) + 10;
+                gameState.solution = findSolution(gameState.numbers, gameState.target);
+            } while (!gameState.solution);
+
+            gameState.numberCounts = {};
+            gameState.numbers.forEach(num => {
+                gameState.numberCounts[num] = (gameState.numberCounts[num] || 0) + 1;
+            });
+
+            gameState.startTime = Date.now();
+            updateDisplay();
+
+            // ให้ป้าย target เด้งเบาๆ เมื่อสุ่มโจทย์ใหม่
+            const badge = document.getElementById('targetBadge');
+            if (badge) {
+                badge.classList.add('flash');
+                setTimeout(() => badge.classList.remove('flash'), 700);
+            }
+
+            updateTimer();
+        }
+
+        function generateRandomNumbers(count) {
+            const nums = [];
+            for (let i = 0; i < count; i++) {
+                nums.push(Math.floor(Math.random() * 9) + 1);
+            }
+            return nums;
+        }
+
+        function updateDisplay() {
+            // Problem display
+          const numsHtml = gameState.numbers.map(n => `<span class="nums">${n}</span>`).join(', ');
+const problemEl = document.getElementById('problemDisplay');
+problemEl.innerHTML = `
+  <span class="label">🧩 ใช้เลข [${numsHtml}] ให้ได้</span>
+  <span id="targetBadge" class="target-badge" role="status" aria-live="polite" title="คลิกเพื่อขยาย">
+    ${gameState.target}
+  </span>
+`;
+
+// ให้คลิกที่ป้ายเพื่อสลับโหมดใหญ่/ปกติ (ผูกครั้งเดียว)
+const badge = document.getElementById('targetBadge');
+if (badge && !badge.dataset.bound) {
+  badge.addEventListener('click', () => badge.classList.toggle('big'));
+  badge.dataset.bound = '1';
+}
+            // Expression display with cursor
+            const expr = gameState.expression;
+            const beforeCursor = expr.substring(0, gameState.cursorPos);
+            const afterCursor = expr.substring(gameState.cursorPos);
+            const display = beforeCursor + '<span class="cursor"></span>' + afterCursor;
+            document.getElementById('expressionDisplay').innerHTML = display || '<span class="cursor"></span>';
+            
+            // Available numbers
+            const availableText = `ตัวเลขที่มี: [${gameState.numbers.join(', ')}]`;
+            document.getElementById('availableNumbers').textContent = availableText;
+            
+            // Number buttons
+            const numberButtonsDiv = document.getElementById('numberButtons');
+            numberButtonsDiv.innerHTML = '';
+            const uniqueNumbers = [...new Set(gameState.numbers)].sort();
+            uniqueNumbers.forEach(num => {
+                const count = gameState.numberCounts[num] || 0;
+                const button = document.createElement('button');
+                button.className = 'number-btn';
+                button.textContent = `${num} (${count})`;
+                button.disabled = count === 0;
+                button.onclick = () => addNumber(num);
+                numberButtonsDiv.appendChild(button);
+            });
+
+            // Score
+            document.getElementById('scoreDisplay').textContent = `คะแนน: ${gameState.score}`;
+        }
+
+        function updateTimer() {
+            if (gameState.solved) return;
+            
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            document.getElementById('timerDisplay').textContent = `⏳ เวลา: ${elapsed}`;
+            
+            setTimeout(updateTimer, 1000);
+        }
+
+        function addNumber(num) {
+            if (gameState.solved || (gameState.numberCounts[num] || 0) === 0) return;
+            
+            const expr = gameState.expression;
+            gameState.expression = expr.substring(0, gameState.cursorPos) + num + expr.substring(gameState.cursorPos);
+            gameState.cursorPos++;
+            gameState.numberCounts[num]--;
+            updateDisplay();
+        }
+
+        function addToExpression(char) {
+            if (gameState.solved) return;
+            
+            const expr = gameState.expression;
+            gameState.expression = expr.substring(0, gameState.cursorPos) + char + expr.substring(gameState.cursorPos);
+            gameState.cursorPos++;
+            updateDisplay();
+        }
+
+        function deleteAtCursor() {
+            if (gameState.solved || gameState.cursorPos === 0) return;
+            
+            const deletedChar = gameState.expression[gameState.cursorPos - 1];
+            gameState.expression = gameState.expression.substring(0, gameState.cursorPos - 1) + 
+                                 gameState.expression.substring(gameState.cursorPos);
+            gameState.cursorPos--;
+            
+            if (!isNaN(deletedChar)) {
+                const num = parseInt(deletedChar);
+                gameState.numberCounts[num] = (gameState.numberCounts[num] || 0) + 1;
+            }
+            
+            updateDisplay();
+        }
+
+        function clearExpression() {
+            if (gameState.solved) return;
+            
+            gameState.expression = '';
+            gameState.cursorPos = 0;
+            gameState.numberCounts = {};
+            gameState.numbers.forEach(num => {
+                gameState.numberCounts[num] = (gameState.numberCounts[num] || 0) + 1;
+            });
+            updateDisplay();
+        }
+
+        function moveCursorLeft() {
+            if (gameState.solved) return;
+            gameState.cursorPos = Math.max(0, gameState.cursorPos - 1);
+            updateDisplay();
+        }
+
+        function moveCursorRight() {
+            if (gameState.solved) return;
+            gameState.cursorPos = Math.min(gameState.expression.length, gameState.cursorPos + 1);
+            updateDisplay();
+        }
+
+        function cursorToStart() {
+            if (gameState.solved) return;
+            gameState.cursorPos = 0;
+            updateDisplay();
+        }
+
+        function cursorToEnd() {
+            if (gameState.solved) return;
+            gameState.cursorPos = gameState.expression.length;
+            updateDisplay();
+        }
+
+        function safeEval(expr) {
+            try {
+                // Replace × with * for evaluation
+                expr = expr.replace(/×/g, '*');
+                
+                // Basic validation
+                if (!/^[0-9+\-*/().\s]+$/.test(expr)) return null;
+                
+                const result = Function('"use strict"; return (' + expr + ')')();
+                return (typeof result === 'number' && !isNaN(result) && isFinite(result)) ? result : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function checkAnswer() {
+            if (gameState.solved || !gameState.expression) {
+                showResult('❌ กรุณาใส่สูตร', 'error');
+                return;
+            }
+
+            const result = safeEval(gameState.expression);
+            if (result === null) {
+                showResult('❌ สูตรไม่ถูกต้อง', 'error');
+                return;
+            }
+
+            // Check if numbers are used correctly
+            const usedDigits = gameState.expression.match(/\d/g) || [];
+            const availableDigits = [...gameState.numbers];
+            
+            for (const digit of usedDigits) {
+                const num = parseInt(digit);
+                const index = availableDigits.indexOf(num);
+                if (index === -1) {
+                    showResult('❌ ใช้ตัวเลขเกินจำนวนหรือใช้เลขที่ไม่มี', 'error');
+                    return;
+                }
+                availableDigits.splice(index, 1);
+            }
+
+            if (Math.abs(result - gameState.target) < 1e-9) {
+                const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+                const points = Math.max(1, 10 - Math.floor(elapsed / 60));
+                gameState.score += points;
+                gameState.solved = true;
+                showResult(`✅ ถูกต้อง! +${points} คะแนน (ใช้เวลา ${elapsed} วินาที)`, 'success');
+                setTimeout(startGame, 5000);
+            } else {
+                showResult(`❌ ผลลัพธ์ = ${result.toFixed(2)}, ต้องการ = ${gameState.target}`, 'error');
+                gameState.score = Math.max(0, gameState.score - 3);
+                gameState.solved = true;
+                setTimeout(startGame, 5000);
+            }
+            updateDisplay();
+        }
+
+        function revealSolution() {
+            if (gameState.solved) return;
+            
+            gameState.solved = true;
+            gameState.score = Math.max(0, gameState.score - 5);
+            showResult(`💡 เฉลย: ${gameState.solution} (หัก 5 คะแนน)`, 'info');
+            updateDisplay();
+            setTimeout(startGame, 5000);
+        }
+
+        function resetGame() {
+            gameState.score = 0;
+            updateDisplay();
+            startGame();
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('resultDisplay');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+        }
+
+        function handleKeyPress(event) {
+            if (gameState.solved) return;
+
+            event.preventDefault();
+            
+            const key = event.key;
+            
+            switch (key) {
+                case 'ArrowLeft':
+                    moveCursorLeft();
+                    break;
+                case 'ArrowRight':
+                    moveCursorRight();
+                    break;
+                case 'Home':
+                    cursorToStart();
+                    break;
+                case 'End':
+                    cursorToEnd();
+                    break;
+                case 'Backspace':
+                    deleteAtCursor();
+                    break;
+                case 'Enter':
+                    checkAnswer();
+                    break;
+                case 'Escape':
+                    clearExpression();
+                    break;
+                case '+':
+                case '-':
+                case '/':
+                case '(':
+                case ')':
+                    addToExpression(key);
+                    break;
+                case '*':
+                    addToExpression('*');
+                    break;
+                default:
+                    if (/^\d$/.test(key)) {
+                        const num = parseInt(key);
+                        if (gameState.numbers.includes(num) && (gameState.numberCounts[num] || 0) > 0) {
+                            addNumber(num);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // Simple solution finder
+        function findSolution(numbers, target) {
+            const operators = ['+', '-', '*', '/'];
+            
+            function permute(arr) {
+                if (arr.length <= 1) return [arr];
+                const result = [];
+                for (let i = 0; i < arr.length; i++) {
+                    const rest = permute([...arr.slice(0, i), ...arr.slice(i + 1)]);
+                    for (let perm of rest) {
+                        result.push([arr[i], ...perm]);
+                    }
+                }
+                return result;
+            }
+
+            function generateOperatorCombinations(length) {
+                if (length === 1) return operators.map(op => [op]);
+                const result = [];
+                for (let op of operators) {
+                    for (let combo of generateOperatorCombinations(length - 1)) {
+                        result.push([op, ...combo]);
+                    }
+                }
+                return result;
+            }
+
+            const numberPerms = permute(numbers);
+            const operatorCombos = generateOperatorCombinations(3);
+
+            for (let nums of numberPerms) {
+                for (let ops of operatorCombos) {
+                    const expressions = [
+                        `${nums[0]}${ops[0]}${nums[1]}${ops[1]}${nums[2]}${ops[2]}${nums[3]}`,
+                        `(${nums[0]}${ops[0]}${nums[1]})${ops[1]}(${nums[2]}${ops[2]}${nums[3]})`,
+                        `((${nums[0]}${ops[0]}${nums[1]})${ops[1]}${nums[2]})${ops[2]}${nums[3]}`,
+                        `${nums[0]}${ops[0]}((${nums[1]}${ops[1]}${nums[2]})${ops[2]}${nums[3]})`
+                    ];
+
+                    for (let expr of expressions) {
+                        const result = safeEval(expr);
+                        if (result !== null && Math.abs(result - target) < 1e-6) {
+                            return expr.replace(/\*/g, '×');
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // Initialize game when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
